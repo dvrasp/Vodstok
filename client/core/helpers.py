@@ -3,6 +3,7 @@ Vodstok helpers
 """
 
 from urlparse import urlparse
+import re
 
 def normalize(url):
     """
@@ -18,7 +19,12 @@ def normalize(url):
     if url[-1] != '/':
         url += '/'
     return url
-    
+
+def sanitize_filename(filename):
+    """
+    Substitute unsafe/invalid characters in filename with spaces
+    """
+    return re.sub(r'[\\/\0]', ' ', filename).strip()
 
 def to_hex(byte_array):
     """
@@ -77,3 +83,4 @@ def format_eta(eta):
         return '%dm%ds' % (eta/60, eta%60)
     else:
         return '%ds' % (eta,)
+

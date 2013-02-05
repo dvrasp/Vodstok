@@ -35,6 +35,7 @@ from threading import Lock
 from core.server import ServerIOError, Server
 from core.settings import Settings
 from core.exception import IncorrectParameterError, IncorrectFormatError
+from core.helpers import sanitize_filename
 
 
 class AbstractTask:
@@ -537,7 +538,7 @@ class DownTask:
                 self.__task = DownloadFileTask(self, self.__chunks.split(','), self.__file)
             else:
                 self.__state = DownTask.RECVING
-                self.filename = os.path.join(self.__dst_prefix, filename)
+                self.filename = os.path.join(self.__dst_prefix, sanitize_filename(filename))
                 self.__file = FileStream(
                     open(self.filename, 'wb'), key=self.__key
                 )
