@@ -207,11 +207,11 @@ class DownUpManager:
             self.__tasks[task.uuid] = TaskRef(task)
             self.notify_task_created(task.uuid)
 
-    def upload(self, filename):
+    def upload(self, filename, rewritten_filename=None):
         """
         Upload a file
         """
-        task = UpTask(self, filename)
+        task = UpTask(self, filename, rewritten_filename=rewritten_filename)
         self.__register_task(task)
         return task.uuid
 
@@ -358,13 +358,13 @@ class CmdLineManager:
         self.kind = ''
         self.start = time()
 
-    def upload(self, filename):
+    def upload(self, filename, rewritten_filename=None):
         """
         Upload a file
         """
         try:
             self.kind = 'up'
-            self.task = self._manager.upload(filename)
+            self.task = self._manager.upload(filename, rewritten_filename=rewritten_filename)
             self._manager.start_task(self.task)
         except IncorrectParameterError:
             print '[!] Error: bad file name'

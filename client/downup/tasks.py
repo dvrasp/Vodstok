@@ -581,11 +581,11 @@ class UpTask:
     SUMMARY = 1
     DONE = 2	
 	
-    def __init__(self, manager=None, filename='unk.bin'):
+    def __init__(self, manager=None, filename='unk.bin', rewritten_filename=None):
         try:
             self.uuid = uuid.uuid1()
             self.__manager = manager
-            self.__filename = os.path.basename(filename)
+            self.__filename = rewritten_filename or os.path.basename(filename)
             self.__file = FileStream(open(filename, 'rb'))
             self.__key = self.__file.get_key()
             self.__state = UpTask.INIT
@@ -637,6 +637,7 @@ class UpTask:
         """
         if self.__state == UpTask.SENDING:
             meta = '%s|%s' % (self.__filename, ','.join(task.get_aliases()))
+            print "META", meta
             if len(meta) > Settings.chunk_size:
                 meta = '%s|%s' % (self.__filename, ','.join(task.get_aliases()))
                 self.__filename = 'metadata'

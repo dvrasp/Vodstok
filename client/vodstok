@@ -31,6 +31,8 @@ class Options(OptionParser):
             metavar='DIRECTORY', help="Set destination directory", default='')
         self.add_option('-v', '--version', action="store_true", dest="showver",
             help="Show version")
+        self.add_option('-f', '--filename', dest="rewritten_filename",
+            help="Use custom filename for upload")
 
 
 class Vodstok:
@@ -250,7 +252,7 @@ if __name__ == '__main__':
             else:
                 if os.path.exists(args[0]):
                     manager = CmdLineManager()
-                    manager.upload(args[0])
+                    manager.upload(args[0], options.rewritten_filename)
                 else:
                     Options().print_help()
     else:
