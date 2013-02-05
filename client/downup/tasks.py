@@ -713,10 +713,11 @@ class TaskRef:
     """
     
     def __init__(self, task, status=TaskStatus.TASK_PENDING,
-        progress=0.0, speed=0.0):
+        progress=0.0, speed=0.0, eta=0.0):
         self.object = task
         self.status = status
         self.progress = progress
+        self.eta = eta
         self.speed = speed
         self.last = (0, time())
 		
@@ -726,12 +727,16 @@ class TaskRef:
         """
         count, timestamp = self.last
         now = time()
-        if (time()-timestamp)>0:
+        if (now-timestamp)>0:
             self.speed = float((done - count)*Settings.chunk_size)/(now-timestamp)
         else:
             self.speed = 0
         self.progress = float(done)/total
-		
+        if self.speed:
+            self.eta = (now-timestamp) * (total - done)/done
+        else:
+            self.eta = 0
+
     def __getattr__(self, attr):
         """
         Forward calls to underlying task object

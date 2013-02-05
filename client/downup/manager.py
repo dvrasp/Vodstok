@@ -1,6 +1,6 @@
 import sys
 from time import time
-from core.helpers import format_speed
+from core.helpers import format_speed, format_eta
 from core.exception import IncorrectParameterError, IncorrectFormatError,\
     ServerIOError
 from storage.user import User
@@ -416,8 +416,9 @@ class CmdLineManager:
             width = int(progress*40)
             sys.stdout.write('\r%s: [' % action +'='*width)
             sys.stdout.write(' '*(40-width))
-            sys.stdout.write('] %s     ' % \
-                format_speed(self._manager.get_task(task).speed))
+            sys.stdout.write('] %8s ETA: %s    ' % \
+                             (format_speed(self._manager.get_task(task).speed),
+                              format_eta(self._manager.get_task(task).eta)))
             sys.stdout.flush()
 
     def on_task_cancel(self, task):

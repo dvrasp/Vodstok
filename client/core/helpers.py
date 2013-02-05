@@ -66,3 +66,14 @@ def format_speed(speed):
         return '%0.2f Kb/s' % (float(speed)/2**10)
     else:
         return '%d b/s' % speed
+
+def format_eta(eta):
+    """
+    Format ETA seconds into human readable text.
+    """
+    if eta > 60**2:
+        return '%dh%dm' % (eta/60**2, (eta%60**2)/60)
+    elif eta > 60:
+        return '%dm%ds' % (eta/60, eta%60)
+    else:
+        return '%ds' % (eta,)
