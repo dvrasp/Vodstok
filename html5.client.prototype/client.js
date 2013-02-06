@@ -63,6 +63,37 @@ function File(url) {
     }
     this.download = function () {
 	var key = this.key;
+	var download_link = document.querySelector('#download-link');
+	var progress = document.querySelector('#progress');
+	download_link.style.display = "none";
+	download_link.href = "";
+	progress.innerHTML = "";
+	function errorHandler(e) {
+	    var msg = '';
+
+	    switch (e.code) {
+	    case FileError.QUOTA_EXCEEDED_ERR:
+		msg = 'QUOTA_EXCEEDED_ERR';
+		break;
+	    case FileError.NOT_FOUND_ERR:
+		msg = 'NOT_FOUND_ERR';
+		break;
+	    case FileError.SECURITY_ERR:
+		msg = 'SECURITY_ERR';
+		break;
+	    case FileError.INVALID_MODIFICATION_ERR:
+		msg = 'INVALID_MODIFICATION_ERR';
+		break;
+	    case FileError.INVALID_STATE_ERR:
+		msg = 'INVALID_STATE_ERR';
+		break;
+	    default:
+		msg = 'Unknown Error';
+		break;
+	    };
+
+	    progress.innerHTML = 'Error: ' + msg;
+	}
 	this.downloadMetaData(function (filename, chunks) {
 	    CHUNK_SIZE = 32*1024 - 16;
 	    // TODO: error handling
@@ -71,21 +102,35 @@ function File(url) {
 		    fileEntry.createWriter(function(writer) {
 			var cnt = chunks.length;
 			writer.truncate(chunks.length * CHUNK_SIZE);
+			console.log(chunks.length * CHUNK_SIZE);
 			for (var i=0;i<chunks.length;i++) {
-			    downloadChunkByUrl(key, chunks[i], function (data) {
-				writer.seek(i*CHUNK_SIZE);
-				writer.write(new Blob([CryptoJS.enc.Latin1.stringify(data)]));
-				cnt--;
-				if (cnt==0) {
-				    var a = document.querySelector('#download-link');
-				    a.href = fileEntry.toURL();
-				    a.download = filename;
-				}
-			    });
+			    (function () {
+				var position = i*CHUNK_SIZE;
+				downloadChunkByUrl(key, chunks[i], function (data) {
+				    console.log('seek', position);
+				    try {
+					writer.seek(position);
+				    } catch (e) {
+					errorHandler(e);
+					return;
+				    }
+				    writer.write(new Blob([CryptoJS.enc.Latin1.stringify(data)]));
+				    cnt--;
+				    if (cnt==0) {
+					progress.innerHTML = 'Done!';
+					download_link.style.display = "inline";
+					download_link.href = fileEntry.toURL();
+					download_link.download = filename;
+				    } else {
+					progress.innerHTML = 'Chunks to go: '+cnt;
+				    }
+				    
+				});
+			    })();
 			}
-		    });
-		});
-	    });
+		    }, errorHandler);
+		}, errorHandler);
+	    }, errorHandler);
 		
 	});
     }
